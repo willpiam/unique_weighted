@@ -73,11 +73,9 @@ const types = [
 	},
 ];
 
-let devised = [];
 
 function GetNextWithWeights(prevType) {
 	// 1. Get the weights
-	console.log(`prevType is ${prevType}`);
 	const weights = types.find(t => t.name == prevType).weights;
 
 	// 2. pick a value between 0 and 100
@@ -95,21 +93,46 @@ function GetNextWithWeights(prevType) {
 }
 
 function calculateSpecialness(selection) {
-	return undefined;
+
+
+	const sarr = selection.map((el, i) => {
+		if (i == 0)
+			return 0; // no points for first element
+		return 1 / types.find(t => t.name == selection[i - 1]).weights[el];
+		//return types[i - 1].weights[el];
+		//return types.find(t => t.name = el).w
+
+	});
+
+	console.log(sarr);
+	const specialsum = sarr.reduce((ac, el) => ac + el);
+	console.log(specialsum);
+	return specialsum;
 }
 
-for (let i = 0; i < 6; i++) {
-	if (i == 0) {
-		// choose with even distribution
-		devised = [...devised, types[Math.floor(Math.random() * 6)].name];
-		continue;
+function main() {
+	let devised = [];
+	for (let i = 0; i < types.length; i++) {
+		if (i == 0) {
+			// choose first element with even distribution
+			devised = [...devised, types[Math.floor(Math.random() * 6)].name];
+			continue;
+		}
+		devised = [...devised, GetNextWithWeights(devised[i - 1])];
 	}
-	devised = [...devised, GetNextWithWeights(devised[i - 1])];
+
+	console.log(devised);
+	//console.log(`Your set -> ${devised}`);
+
+	console.log(`\nspecialness: ${calculateSpecialness(devised)}`);
+
+	//console.log(`\n\t~~Weighted sums~~`);
+	//types.forEach(t => console.log(`\t${t.name.padEnd(14, '.')} ${Object.values(t.weights).reduce((acc, curval) => acc + curval)}`));
 }
 
-console.log(`Your set -> ${devised}`);
+for (let i = 0; i < 144; i++)
+	main();
 
-console.log(`\nspecialness: ${calculateSpecialness(devised)}`);
-
-console.log(`\n\t~~Weighted sums~~`);
-types.forEach(t => console.log(`\t${t.name.padEnd(14, '.')} ${Object.values(t.weights).reduce((acc, curval) => acc + curval)}`));
+console.log(`test with rarest combination`);
+const veryRare = ['strange', 'up', 'bottom', 'bottom', 'bottom', 'bottom'];
+console.log(`very rare -> ${calculateSpecialness(veryRare)}`);
